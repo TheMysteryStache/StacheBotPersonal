@@ -103,7 +103,7 @@ async def play(ctx, url):
                     if player.is_playing():
                             print("playing!")
                             t = threading._start_new_thread(await autoleave(ctx, player), ("thread-2", 1, ))
-                            t.start()
+                            t.start
                             print("ppheddlol")
 
                             _thread.start_new_thread(print("nigge"), await bot.process_commands,  ("thread-1", 1,))
