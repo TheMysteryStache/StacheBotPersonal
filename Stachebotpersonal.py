@@ -10,10 +10,14 @@ import urllib
 import urllib.parse
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import _thread
+import threading
+from multiprocessing import process
 
 bot = commands.Bot(command_prefix='!', description='JeffBot')
 client = discord.Client
 client = bot
+
 
 @bot.event
 async def on_ready():
@@ -52,14 +56,28 @@ async def roll():
 async def ping():
     await bot.say("Pong!")
 
-@bot.group()
-async def play():
-    print ("jeff")
+
+async def autoleave(ctx, player):
+    print("GAYZO NIGGE")
+    while(ctx.message.author.voice_channel == bot.get_channel(ctx.message.author.voice_channel.id)):
+        if player.is_playing():
+            print("nigge machine fix")
+        else:
+            print("ur gay lol")
+            for x in client.voice_clients:
+                if(x.server == ctx.message.server):
+                    return await x.disconnect()
+                break
+            break
+
+
+
+
 
 @client.command(pass_context=True)
-async def yt(ctx, url):
+async def play(ctx, url):
         url = ctx.message.content
-        url = url.strip('!yt ')
+        url = url.strip('!play ')
         textToSearch = url
         query = urllib.parse.quote(textToSearch)
         url = "https://www.youtube.com/results?search_query=" + query
@@ -67,27 +85,41 @@ async def yt(ctx, url):
         html = response.read()
         soup = BeautifulSoup(html)
         print ('https://www.youtube.com/results?search_query=' + query)
-
         for vid in soup.findAll(attrs={'class': 'yt-uix-tile-link'}):
-            if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
 
-                print ('https://www.youtube.com' + vid['href'])
-                author = ctx.message.author
-                voice_channel = author.voice_channel
-                vc = await client.join_voice_channel(voice_channel)
 
-                player = await vc.create_ytdl_player('https://www.youtube.com/results?search_query=' + query)
-                player.start()
-                while True:
+            print ('https://www.youtube.com' + vid['href'])
+            author = ctx.message.author
+            voice_channel = author.voice_channel
+
+            if bot.is_voice_connected(voice_channel):
+                print("henlo")
+            else:
+                if "googleads" not in vid['href']:
+                    vc = await client.join_voice_channel(voice_channel)
+                    print("GAY")
+                    player = await vc.create_ytdl_player('https://www.youtube.com' + vid['href'])
+                    player.start()
                     if player.is_playing():
-                        print("playing!")
-                        await bot.process_commands
-                    else:
-                        for x in client.voice_clients:
-                            if (x.server == ctx.message.server):
-                                return await x.disconnect()
-                                break
-            break
+                            print("playing!")
+                            t = threading._start_new_thread(await autoleave(ctx, player), ("thread-2", 1, ))
+                            t.start()
+                            print("ppheddlol")
+
+                            _thread.start_new_thread(print("nigge"), await bot.process_commands,  ("thread-1", 1,))
+
+                            print(threading.active_count())
+                            print(threading.current_thread())
+                            for x in client.voice_clients:
+                                if (x.server == ctx.message.server):
+                                    return await x.disconnect()
+
+                else:
+                    print ("DINLO")
+
+
+
+
 
 
 
@@ -98,9 +130,10 @@ async def yt(ctx, url):
 
 @client.command(pass_context = True)
 async def stop(ctx):
-    for x in client.voice_clients:
-        if(x.server == ctx.message.server):
-            return await x.disconnect()
+    if ctx.message.author.voice_channel == bot.get_channel(ctx.message.author.voice_channel.id):
+        for x in client.voice_clients:
+            if(x.server == ctx.message.server):
+                return await x.disconnect()
 
     bot.say("Stopping!")
 
