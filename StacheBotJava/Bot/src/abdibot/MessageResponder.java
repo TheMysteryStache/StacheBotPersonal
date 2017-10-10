@@ -116,6 +116,10 @@ public class MessageResponder extends ListenerAdapter {
 
 		audiomanager.closeAudioConnection();
 		}
+		if(message.contains("244933944175362048"))
+		{
+			event.getTextChannel().sendMessage("CREATOR PINGS ARE GAY DUMBO").queue();
+		}
 
 }
 }
